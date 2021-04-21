@@ -85,22 +85,3 @@ if __name__ == "__main__":
     print 'channel 4 mean',np.mean(df['charge'])
     print 'channel 4 MPV',ch4_bins[1][np.argmax(ch4_bins[0])]+bin_width/2.
     
-
-    #########################
-    ### plot a pulse
-    #########################
-    t,v=get_pulse(20210415152133508,4)
-
-    can = r.TCanvas('can','can',500,500)
-    gr=r.TGraph(len(t),t,v)
-    gr.Draw("AC")
-    can.SaveAs("pulse.png")
-    
-    # ch4_filter=df['channel']==4
-    # ch1_filter=df['channel']==1
-    # plt.hist(df[ch4_filter]['charge'].values,np.arange(0,5000,100),histtype='step')
-    # plt.hist(df[ch1_filter]['charge'].values,np.arange(0,5000,100),histtype='step')
-    # plt.legend(['channel 4','channel 1'])
-    # plt.show()
-    # print 'channel 4 mean',np.mean(df[ch4_filter]['charge'].values)
-    # print 'channel 1 mean',np.mean(df[ch1_filter]['charge'].values)
