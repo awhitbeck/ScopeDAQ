@@ -83,7 +83,7 @@ def load_data(dir_name,debug=False):
             print 'channel:',channel
             print 'time:',time
 
-        df_temp=pd.read_csv(file,header=7)
+        df_temp=pd.read_csv(file,header=8)  ### header is the number of rows in the header
         df=df.append({'time':df_temp['TIME'].values,
                       'voltage':df_temp['CH'+str(channel)].values,
                       'event_timestamp':time,
