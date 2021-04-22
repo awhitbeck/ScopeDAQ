@@ -30,9 +30,9 @@ def get_pulse(timestamp,channel,debug=False):
     ch4_filter=df['channel']==4
     ch4_single_filter=df['event_timestamp']==(df[ch4_filter]['event_timestamp'].values[0])
     if debug : 
-        print 'ch4 times',df[ch4_single_filter]['time'].values[0]
-        print 'ch4 voltage',df[ch4_single_filter]['voltage'].values[0]
-        print 'ch4 timestamps',df[ch4_single_filter]['event_timestamp'].values[0]
+        print('ch4 times',df[ch4_single_filter]['time'].values[0])
+        print('ch4 voltage',df[ch4_single_filter]['voltage'].values[0])
+        print('ch4 timestamps',df[ch4_single_filter]['event_timestamp'].values[0])
     return df[ch4_single_filter]['time'].values[0],df[ch4_single_filter]['voltage'].values[0]
 
 def match_channels(timestamps,debug=False):
@@ -42,9 +42,9 @@ def match_channels(timestamps,debug=False):
         diff = np.absolute(np.subtract(timestamps,t))
         diff[i]=99999999.
         if debug : 
-            print 't',t,'i',i
-            print 'min',min(diff)
-            print 'argmin',np.argmin(diff)
+            print('t',t,'i',i)
+            print('min',min(diff))
+            print('argmin',np.argmin(diff))
         event_number[np.argmin(diff)]=i
         event_number[i]=i
     return event_number
@@ -63,25 +63,25 @@ def load_data(dir_name,debug=False):
         for f in glob.glob(dir_name+'*.pkl') : 
             if df is None : 
                 df = pd.read_pickle(f)
-                print 'test',len(df)
+                print('test',len(df))
             else : 
                 df = df.append(pd.read_pickle(f),ignore_index=True)
-                print 'test',len(df)
+                print('test',len(df))
         return df
 
     df=pd.DataFrame(columns=['time','voltage','event_timestamp','channel'])
 
     files=get_files(dir_name)
     for i,file in enumerate(files):
-        if i % 1 == 0 : print 'file',i,'/',len(files)
-        print file
+        if i % 1 == 0 : print('file',i,'/',len(files))
+        print(file)
         fileonly = file.split('/')[-1]
         words=fileonly.split('_')
         channel=int(words[1][-1:])
         time=int(words[2][:-4])
         if debug:
-            print 'channel:',channel
-            print 'time:',time
+            print('channel:',channel)
+            print('time:',time)
 
         df_temp=pd.read_csv(file,header=8)  ### header is the number of rows in the header
         df=df.append({'time':df_temp['TIME'].values,
@@ -92,17 +92,17 @@ def load_data(dir_name,debug=False):
         
 
     df['event_number']=match_channels(df['event_timestamp'].values)
-    df['baseline']=np.multiply(map(lambda x : np.sum(x[:3000]),df['voltage'].values),10./3.)
-    df['charge']=map(np.sum,df['voltage'])
+    df['baseline']=np.multiply(list(map(lambda x : np.sum(x[:3000]),df['voltage'].values)),10./3.)
+    df['charge']=list(map(lambda x : np.sum(x[5000:]),df['voltage']))
 
     div=1000
-    for i in range(len(df)/div):
+    for i in range(int(len(df)/div)):
         if (i+1)*div > len(df) :
             df[i*div:].to_pickle(file_name+'_'+str(i)+'.pkl')
         else :
             df[i*div:(i+1)*div].to_pickle(file_name+'_'+str(i)+'.pkl')
 
     if debug:
-        print df.head(20)
+        print(df.head(20))
     return df
 
