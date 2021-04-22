@@ -3,22 +3,22 @@ from utils import *
 channel_list=[4]
 
 if __name__ == "__main__":
-    run_name=sys.argv[1]
-    #run_name='path_to_my_data'
-    dir_name=run_name.split('/')[-2]
-    print dir_name
+    #run_name=sys.argv[1]
+    run_name=r'C:\Users\awhitbec\OneDrive - Texas Tech University\CSV Files\timtestbar1'
+    dir_name=run_name.split('\\')[-1]
+    print(dir_name)
     df = load_data(run_name)
-    print df.head()
+    print(df.head())
     #########################
     ## average pulse shape
     #########################
     for i in channel_list:
         ch_filter=(df['channel']==i)
-        #print ch_filter
-        #print len(ch_filter)
-        #print len(df)
+        #print(ch_filter)
+        #print(len(ch_filter))
+        #print(len(df))
         ts=df[ch_filter]['time'].values[0]*1e9
-        #print ts
+        #print(ts)
         vs=np.sum(df[ch_filter]['voltage'].values)
         plt.plot(ts,vs)
 
@@ -26,11 +26,10 @@ if __name__ == "__main__":
     plt.xlabel('Time [ns]')
     plt.ylabel('Amplitude (A.U.)')
     plt.savefig(dir_name+'_average_pulses.png')
-    #plt.show()
     plt.clf()
     plt.cla()
 
-    df['charge']=np.subtract(df['charge'],df['baseline'])
+    #df['charge']=np.subtract(df['charge'],df['baseline'])
 
     #########################
     ## get charge for channels 1 and 4 for each event
@@ -42,7 +41,7 @@ if __name__ == "__main__":
         ch4_filter=df['channel']==4
         #ch1_filter=df['channel']==1
         #if len(df[event_filter&ch1_filter]['charge'].values) != 1 or len(df[event_filter&ch4_filter]['charge'].values) != 1 : 
-        #    print 'there are duplicates or not enough pulses in event',event
+        #    print('there are duplicates or not enough pulses in event',event)
         #else : 
         #    charge_pairs.append([df[event_filter&ch1_filter]['charge'].values[0],df[event_filter&ch4_filter]['charge'].values[0]])
 
@@ -61,7 +60,7 @@ if __name__ == "__main__":
     #plt.clf()
     #plt.cla()
 
-    print df.head()
+    print(df.head())
     
     #########################
     ### plot integrated charges
@@ -80,8 +79,8 @@ if __name__ == "__main__":
     plt.clf()
     plt.cla()
 
-    #print 'channel 1 mean',np.mean(charge1)
-    #print 'channel 1 MPV',ch1_bins[1][np.argmax(ch1_bins[0])]+bin_width/2.
-    print 'channel 4 mean',np.mean(df['charge'])
-    print 'channel 4 MPV',ch4_bins[1][np.argmax(ch4_bins[0])]+bin_width/2.
+    #print('channel 1 mean',np.mean(charge1))
+    #print('channel 1 MPV',ch1_bins[1][np.argmax(ch1_bins[0])]+bin_width/2.)
+    print('channel 4 mean',np.mean(df['charge']))
+    print('channel 4 MPV',ch4_bins[1][np.argmax(ch4_bins[0])]+bin_width/2.)
     
