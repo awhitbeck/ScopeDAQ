@@ -33,7 +33,7 @@ if __name__ == "__main__":
     pred = pulse(ts[range_low:],*coeff1)
     plt.plot(ts[range_low:],pred,linewidth=1.5)
 
-    plt.legend('Channel 4')
+    plt.legend(['Channel 4'])
     plt.xlabel('Time [ns]')
     plt.ylabel('Amplitude (A.U.)')
     plt.savefig(dir_name+'_average_pulses.png')
