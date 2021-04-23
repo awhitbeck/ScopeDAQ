@@ -73,8 +73,7 @@ def load_data(dir_name,debug=False):
 
     files=get_files(dir_name)
     for i,file in enumerate(files):
-        if i % 1 == 0 : print('file',i,'/',len(files))
-        print(file)
+        if i % 100 == 0 : print('file',i,'/',len(files))
         fileonly = file.split('/')[-1]
         words=fileonly.split('_')
         channel=int(words[1][-1:])

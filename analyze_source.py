@@ -1,4 +1,5 @@
 from utils import *
+from scipy.optimize import curve_fit
 
 channel_list=[4]
 
@@ -12,15 +13,25 @@ if __name__ == "__main__":
     #########################
     ## average pulse shape
     #########################
+    # following shape used by niramay: https://indico.fnal.gov/event/46521/contributions/202319/attachments/138355/173167/QIE_Multiple_Pulse_Input_and_noise.pdf
+    def pulse(x, *p):
+        base, A, toff, k, tmax = p
+        return base+((x-toff)<0)*0.+((x-toff)<=tmax)*((x-toff)>=0.)*(A * (1-np.exp(-k*(x-toff))))+((x-toff)>tmax)*((x-toff)>=0.)*(A*(1-np.exp(-k*(tmax-toff))) * np.exp(-k*(x-toff)))/np.exp(-k*(tmax-toff))
+
+    range_low=2000
     for i in channel_list:
         ch_filter=(df['channel']==i)
-        #print(ch_filter)
-        #print(len(ch_filter))
-        #print(len(df))
         ts=df[ch_filter]['time'].values[0]*1e9
         #print(ts)
         vs=np.sum(df[ch_filter]['voltage'].values)
-        plt.plot(ts,vs)
+        vs = list(map(lambda x:  0. if np.isnan(x) or np.isinf(x) else x,vs))
+        plt.plot(ts[range_low:],vs[range_low:])
+
+    pInit = [5.,1000.,5.,0.1,10.]
+    coeff1, var_matrix1 = curve_fit(pulse, ts[range_low:], vs[range_low:], p0=pInit)
+    print("fitted coeffinients:",coeff1)
+    pred = pulse(ts[range_low:],*coeff1)
+    plt.plot(ts[range_low:],pred)
 
     plt.legend('Channel'.join(map(str,channel_list)))
     plt.xlabel('Time [ns]')
@@ -28,8 +39,6 @@ if __name__ == "__main__":
     plt.savefig(dir_name+'_average_pulses.png')
     plt.clf()
     plt.cla()
-
-    #df['charge']=np.subtract(df['charge'],df['baseline'])
 
     #########################
     ## get charge for channels 1 and 4 for each event
@@ -39,26 +48,6 @@ if __name__ == "__main__":
     for event in events : 
         event_filter = df['event_number']==event
         ch4_filter=df['channel']==4
-        #ch1_filter=df['channel']==1
-        #if len(df[event_filter&ch1_filter]['charge'].values) != 1 or len(df[event_filter&ch4_filter]['charge'].values) != 1 : 
-        #    print('there are duplicates or not enough pulses in event',event)
-        #else : 
-        #    charge_pairs.append([df[event_filter&ch1_filter]['charge'].values[0],df[event_filter&ch4_filter]['charge'].values[0]])
-
-    #charge1=np.transpose(charge_pairs)[0]
-    #charge1=np.divide(charge1,12.)
-    #charge4=np.transpose(charge_pairs)[1]
-    #charge4=np.divide(charge4,12.)
-
-    #plt.hist2d(charge1,charge4,bins=[np.arange(0,400,10),np.arange(0,400,10)])
-    #plt.scatter(charge1,charge4,alpha=0.1)
-    #plt.subplots_adjust(left=.14,bottom=.14,top=1.00)
-    #plt.xlabel('Channel 1 Charge [PEs]')
-    #plt.ylabel('Channel 4 Charge [PEs]')
-    #plt.savefig(dir_name+'_charge_correlation.png')
-    #plt.show()
-    #plt.clf()
-    #plt.cla()
 
     print(df.head())
     
@@ -66,21 +55,18 @@ if __name__ == "__main__":
     ### plot integrated charges
     #########################
     low_bin=0
-    high_bin=1000
-    bin_width=20
-    #ch1_bins=plt.hist(charge1,bins=np.arange(low_bin,high_bin,bin_width),histtype='step')
-    ch4_bins=plt.hist(df['charge'],bins=np.arange(low_bin,high_bin,bin_width),histtype='step')
+    high_bin=200
+    bin_width=10
+    ch4_bins=plt.hist(df['charge']/11.,bins=np.arange(low_bin,high_bin,bin_width),histtype='step')
     plt.legend(['Channel 1','Channel 4'])
     plt.xlabel('Charge [PEs]')
     plt.ylabel('Events')
-    plt.yscale('log')
+    #plt.yscale('log')
     plt.savefig(dir_name+'_response.png')
     #plt.show()
     plt.clf()
     plt.cla()
 
-    #print('channel 1 mean',np.mean(charge1))
-    #print('channel 1 MPV',ch1_bins[1][np.argmax(ch1_bins[0])]+bin_width/2.)
     print('channel 4 mean',np.mean(df['charge']))
     print('channel 4 MPV',ch4_bins[1][np.argmax(ch4_bins[0])]+bin_width/2.)
     
