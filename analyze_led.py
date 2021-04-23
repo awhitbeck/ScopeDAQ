@@ -34,7 +34,7 @@ if __name__ == "__main__":
     plt.plot(bin_centers, hist_fit2, label='Fitted data',linewidth=1.2)
     plt.plot(bin_centers, hist_fit3, label='Fitted data',linewidth=1.2)
 
-    plt.legend(['Channel'.join(map(str, channel_list)),'1 PE fit','2 PE fit','3 PI fit'])
+    plt.legend(['Channel 4','1 PE fit','2 PE fit','3 PE fit'])
     plt.xlabel('mV')
     plt.ylabel('Rate [A.U]')
     plt.savefig(dir_name + '_average_pulses.png')

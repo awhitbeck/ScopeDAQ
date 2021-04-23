@@ -5,11 +5,11 @@ channel_list=[4]
 
 if __name__ == "__main__":
     #run_name=sys.argv[1]
-    run_name=r'C:\Users\awhitbec\OneDrive - Texas Tech University\CSV Files\timtestbar1'
+    run_name=r'C:\Users\awhitbec\OneDrive - Texas Tech University\CSV Files\timtestbar3'
     dir_name=run_name.split('\\')[-1]
-    print(dir_name)
+
     df = load_data(run_name)
-    print(df.head())
+
     #########################
     ## average pulse shape
     #########################
@@ -29,11 +29,11 @@ if __name__ == "__main__":
 
     pInit = [5.,1000.,5.,0.1,10.]
     coeff1, var_matrix1 = curve_fit(pulse, ts[range_low:], vs[range_low:], p0=pInit)
-    print("fitted coeffinients:",coeff1)
+    print("fitted coefficients:",coeff1)
     pred = pulse(ts[range_low:],*coeff1)
-    plt.plot(ts[range_low:],pred)
+    plt.plot(ts[range_low:],pred,linewidth=1.5)
 
-    plt.legend('Channel'.join(map(str,channel_list)))
+    plt.legend('Channel 4')
     plt.xlabel('Time [ns]')
     plt.ylabel('Amplitude (A.U.)')
     plt.savefig(dir_name+'_average_pulses.png')
@@ -49,8 +49,6 @@ if __name__ == "__main__":
         event_filter = df['event_number']==event
         ch4_filter=df['channel']==4
 
-    print(df.head())
-    
     #########################
     ### plot integrated charges
     #########################
@@ -58,7 +56,7 @@ if __name__ == "__main__":
     high_bin=200
     bin_width=10
     ch4_bins=plt.hist(df['charge']/11.,bins=np.arange(low_bin,high_bin,bin_width),histtype='step')
-    plt.legend(['Channel 1','Channel 4'])
+    plt.legend(['Channel 4'])
     plt.xlabel('Charge [PEs]')
     plt.ylabel('Events')
     #plt.yscale('log')

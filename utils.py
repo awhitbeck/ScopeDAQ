@@ -60,13 +60,11 @@ def load_data(dir_name,debug=False):
     if dir_name[-1]=='/' : dir_name=dir_name[:-1]
     if len(glob.glob(dir_name+'*.pkl')) > 0 :
         df=None
-        for f in glob.glob(dir_name+'*.pkl') : 
+        for f in glob.glob(dir_name+'*.pkl') :
             if df is None : 
                 df = pd.read_pickle(f)
-                print('test',len(df))
-            else : 
+            else :
                 df = df.append(pd.read_pickle(f),ignore_index=True)
-                print('test',len(df))
         return df
 
     df=pd.DataFrame(columns=['time','voltage','event_timestamp','channel'])
