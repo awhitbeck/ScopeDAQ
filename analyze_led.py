@@ -3,23 +3,24 @@ from utils import *
 channel_list=[4]
 
 if __name__ == "__main__":
-    run_name=r'C:\Users\awhitbec\OneDrive - Texas Tech University\CSV Files\timtestnoise'
+    run_name=r'C:\Users\awhitbec\OneDrive - Texas Tech University\CSV Files\5-13\timtestnoisebegin5-13'
     dir_name=run_name.split('\\')[-1]
 
     df = load_data(run_name)
-
-    binning=np.arange(0,30,0.1)
+    print(df.head())
+    binning=np.arange(0,0.1,0.0001)
 
     def gauss(x, *p):
         A, mu, sigma = p
         return A * np.exp(-(x - mu) ** 2 / (2. * sigma ** 2))/sigma/np.sqrt(2*np.pi)
 
 
-    p0 = [400., 3., 2.]
-    p1 = [400., 12., 2.]
-    p2 = [400., 24., 2.]
+    p0 = [400., 0.01, 0.001]
+    p1 = [400., .04, 0.001]
+    p2 = [400., .070, 0.001]
 
-    hist, bin_edges = np.histogram(df['charge'], density=True, bins=binning)
+    norm_charge=df['charge'].values * 1.25e-3  ## difference in time is 1.25e-12 second.  Then convert to ns
+    hist, bin_edges = np.histogram(norm_charge, density=True, bins=binning)
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
     coeff1, var_matrix1 = curve_fit(gauss, bin_centers, hist, p0=p0)
@@ -29,13 +30,13 @@ if __name__ == "__main__":
     coeff3, var_matrix3 = curve_fit(gauss, bin_centers, hist, p0=p2)
     hist_fit3 = gauss(bin_centers, *coeff3)
 
-    plt.plot(bin_centers, hist, label='Test data',linewidth=1)
-    plt.plot(bin_centers, hist_fit1, label='Fitted data',linewidth=1.2)
-    plt.plot(bin_centers, hist_fit2, label='Fitted data',linewidth=1.2)
-    plt.plot(bin_centers, hist_fit3, label='Fitted data',linewidth=1.2)
+    plt.plot(bin_centers, hist, label='Test data',linewidth=0.8)
+    plt.plot(bin_centers, hist_fit1, label='Fitted data',linewidth=1.4)
+    plt.plot(bin_centers, hist_fit2, label='Fitted data',linewidth=1.4)
+    plt.plot(bin_centers, hist_fit3, label='Fitted data',linewidth=1.4)
 
     plt.legend(['Channel 4','1 PE fit','2 PE fit','3 PE fit'])
-    plt.xlabel('mV')
+    plt.xlabel('V-ns')
     plt.ylabel('Rate [A.U]')
     plt.savefig(dir_name + '_average_pulses.png')
     plt.show()

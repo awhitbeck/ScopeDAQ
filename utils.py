@@ -1,13 +1,10 @@
 #from pathlib import Path
 import glob
-import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-#import ROOT as r
-from array import array 
+from scipy.optimize import curve_fit
 import os
-from itertools import combinations
 
 plt.style.use('fivethirtyeight')
 plt.subplots_adjust(left=.14,bottom=.14,top=1.00)
@@ -18,6 +15,27 @@ plt.rcParams['savefig.facecolor']='#ffffff'
 plt.rcParams['axes.edgecolor']='#ffffff'
 plt.rc('xtick', direction='out', color='#000000')
 plt.rc('ytick', direction='out', color='#000000')
+
+# following shape used by niramay: https://indico.fnal.gov/event/46521/contributions/202319/attachments/138355/173167/QIE_Multiple_Pulse_Input_and_noise.pdf
+def pulse(x, *p):
+    base, A, toff, k, tmax = p
+    return base + ((x - toff) < 0) * 0. + ((x - toff) <= tmax) * ((x - toff) >= 0.) * (
+                A/(tmax-toff) * (1 - np.exp(-k * (x - toff)))) + ((x - toff) > tmax) * ((x - toff) >= 0.) * (
+                       A/(tmax-toff) * (1 - np.exp(-k * (tmax - toff))) * np.exp(-k * (x - toff))) / np.exp(-k * (tmax - toff))
+
+def fit_pulse(xs, ys, *p):
+    print('xs:',xs)
+    print('ys:',ys)
+    print('p:',p)
+    try:
+        coeff1, var_matrix1 = curve_fit(pulse, xs, ys, p0=p,
+                                        bounds=([-np.inf, 0., -np.inf, 0., -np.inf], np.inf),
+                                        check_finite=False)
+        return coeff1
+    except ValueError:
+        print("Oops!  fit failed... return dummy values")
+        return [0.,0.,0.,0.,0.]
+
 
 def get_files(dir,ext='.csv'):
     file_list=[]
@@ -80,6 +98,7 @@ def load_data(dir_name,debug=False):
             print('channel:',channel)
             print('time:',time)
 
+        print('file name:',file)
         df_temp=pd.read_csv(file,header=8)  ### header is the number of rows in the header
         df=df.append({'time':df_temp['TIME'].values,
                       'voltage':df_temp['CH'+str(channel)].values,
@@ -89,8 +108,9 @@ def load_data(dir_name,debug=False):
         
 
     df['event_number']=match_channels(df['event_timestamp'].values)
-    df['baseline']=np.multiply(list(map(lambda x : np.sum(x[:3000]),df['voltage'].values)),10./3.)
-    df['charge']=list(map(lambda x : np.sum(x[5000:]),df['voltage']))
+    # baseline is meant to be the average value of charge measured before pulse
+    df['baseline']=list(map(lambda x : np.sum(x[:2700]),df['voltage'].values))
+    df['charge']=list(map(lambda x : np.sum(x[2700:]),df['voltage']))
 
     div=1000
     for i in range(int(len(df)/div)):

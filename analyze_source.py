@@ -5,7 +5,8 @@ channel_list=[4]
 
 if __name__ == "__main__":
     #run_name=sys.argv[1]
-    run_name=r'C:\Users\awhitbec\OneDrive - Texas Tech University\CSV Files\timtestbar3'
+    run_name=r'C:\Users\awhitbec\OneDrive - Texas Tech University\CSV Files\5-11\timtestbar1-5-11'
+    #run_name=r'D:\andrewMay4'
     dir_name=run_name.split('\\')[-1]
 
     df = load_data(run_name)
@@ -13,10 +14,6 @@ if __name__ == "__main__":
     #########################
     ## average pulse shape
     #########################
-    # following shape used by niramay: https://indico.fnal.gov/event/46521/contributions/202319/attachments/138355/173167/QIE_Multiple_Pulse_Input_and_noise.pdf
-    def pulse(x, *p):
-        base, A, toff, k, tmax = p
-        return base+((x-toff)<0)*0.+((x-toff)<=tmax)*((x-toff)>=0.)*(A * (1-np.exp(-k*(x-toff))))+((x-toff)>tmax)*((x-toff)>=0.)*(A*(1-np.exp(-k*(tmax-toff))) * np.exp(-k*(x-toff)))/np.exp(-k*(tmax-toff))
 
     range_low=2000
     for i in channel_list:
@@ -30,18 +27,19 @@ if __name__ == "__main__":
     pInit = [5.,1000.,5.,0.1,10.]
     coeff1, var_matrix1 = curve_fit(pulse, ts[range_low:], vs[range_low:], p0=pInit)
     print("fitted coefficients:",coeff1)
-    pred = pulse(ts[range_low:],*coeff1)
-    plt.plot(ts[range_low:],pred,linewidth=1.5)
+    pred = pulse(ts[range_low:], *coeff1)
+    plt.plot(ts[range_low:], pred, linewidth=1.5)
 
     plt.legend(['Channel 4'])
     plt.xlabel('Time [ns]')
     plt.ylabel('Amplitude (A.U.)')
+    print('saving:',dir_name+'_average_pulses.png')
     plt.savefig(dir_name+'_average_pulses.png')
     plt.clf()
     plt.cla()
 
     #########################
-    ## get charge for channels 1 and 4 for each event
+    ## get charge for channels 1
     #########################
     events = np.unique(df['event_number'])
     charge_pairs=[]
@@ -52,10 +50,12 @@ if __name__ == "__main__":
     #########################
     ### plot integrated charges
     #########################
-    low_bin=0
+    low_bin=20
     high_bin=200
     bin_width=10
-    ch4_bins=plt.hist(df['charge']/11.,bins=np.arange(low_bin,high_bin,bin_width),histtype='step')
+    ch4_bins=plt.hist((df['charge']-df['baseline']*73./27.)/28.6,bins=np.arange(low_bin,high_bin,bin_width),histtype='step')
+    #    ch4_bins = plt.hist(df['charge']*1.25e-3/0.0286,
+    #                    bins=np.arange(low_bin, high_bin, bin_width), histtype='step')
     plt.legend(['Channel 4'])
     plt.xlabel('Charge [PEs]')
     plt.ylabel('Events')
