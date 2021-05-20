@@ -5,7 +5,7 @@ channel_list=[4]
 
 if __name__ == "__main__":
     #run_name=sys.argv[1]
-    run_name=r'C:\Users\awhitbec\OneDrive - Texas Tech University\CSV Files\5-11\timtestbar1-5-11'
+    run_name=r'C:\Users\awhitbec\OneDrive - Texas Tech University\CSV Files\5-13\timtestbar3-5-13'
     #run_name=r'D:\andrewMay4'
     dir_name=run_name.split('\\')[-1]
 
