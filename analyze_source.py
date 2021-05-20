@@ -53,9 +53,9 @@ if __name__ == "__main__":
     low_bin=20
     high_bin=200
     bin_width=10
-    ch4_bins=plt.hist((df['charge']-df['baseline']*73./27.)/28.6,bins=np.arange(low_bin,high_bin,bin_width),histtype='step')
-    #    ch4_bins = plt.hist(df['charge']*1.25e-3/0.0286,
-    #                    bins=np.arange(low_bin, high_bin, bin_width), histtype='step')
+    #ch4_bins=plt.hist((df['charge']-df['baseline']*73./27.)/28.6,bins=np.arange(low_bin,high_bin,bin_width),histtype='step')
+    ch4_bins = plt.hist(df['charge']/23.,
+                        bins=np.arange(low_bin, high_bin, bin_width), histtype='step')
     plt.legend(['Channel 4'])
     plt.xlabel('Charge [PEs]')
     plt.ylabel('Events')
